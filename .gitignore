@@ -1,1 +1,5 @@
-/*
+screenshots/
+build/
+*.gba
+*.elf
+*.sav
