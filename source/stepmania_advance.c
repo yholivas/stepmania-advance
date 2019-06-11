@@ -29,14 +29,18 @@ int main()
     setup_sprites(arrows, 0, 0, x, y); // tile id, pal-bank
     //setup_sprites(guide_arrows, 2, 1, x, y_guide); // tile id, pal-bank
 
+    u32 frames = 0;
     while (1) {
         vid_vsync();
         for (i = 0; i < NUM_ARROWS; i++) {
+            if ((frames & 64) != (16 * i)) continue;
             y[i] -= 2;
             if (y[i] <= -16 || y[i] > 160) y[i] = 160;
         }
         for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(arrows[i], x[i], y[i]);
+
         oam_copy(oam_mem, obj_buffer, 4);
+        frames++;
     }
 
     return 0;
