@@ -20,18 +20,20 @@ void setup_graphics()
     memcpy(&tile_mem[4][8], lrguideTiles, lrguideTilesLen);
     memcpy(&tile_mem[4][12], udguideTiles, udguideTilesLen);
 
-    memcpy(&tile_mem[0][0], bgTiles, bgTilesLen);
-	memcpy(&se_mem[30][0], bgMap, bgMapLen);
+    // don't need until bg is more complicated than a single color
+    //memcpy(&tile_mem[0][0], bgTiles, bgTilesLen);
+	//memcpy(&se_mem[30][0], bgMap, bgMapLen);
 
     // store palettes into object & bg palette mem
     // each palette entry is 16 bits, get 16 palette entries per sprite
     memcpy(pal_obj_mem, lrarrowPal, lrarrowPalLen);
     memcpy(&pal_obj_mem[16], lrguidePal, lrguidePalLen);
-    memcpy(pal_bg_mem, bgPal, bgPalLen);
+    *pal_bg_mem = bgPal[0];
+    //memcpy(pal_bg_mem, bgPal, bgPalLen);
 
     oam_init(obj_buffer, 128);
     REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32;
-    REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0;// | DCNT_BG0;
+    REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0;
 }
 
 void setup_sprites(OBJ_ATTR ** sprites, u32 tid, u32 pb, int * x, int * y)
