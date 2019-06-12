@@ -6,8 +6,10 @@
 
 #include "lrarrow.h"
 #include "udarrow.h"
-#include "lrguide.h"
-#include "udguide.h"
+#include "lguide.h"
+#include "dguide.h"
+#include "uguide.h"
+#include "rguide.h"
 #include "bg.h"
 
 
@@ -17,8 +19,10 @@ void setup_graphics()
     // arrows take up 2x2 = 4 tiles as they are 16x16 sprites
     memcpy(&tile_mem[4][0], lrarrowTiles, lrarrowTilesLen);
     memcpy(&tile_mem[4][4], udarrowTiles, udarrowTilesLen);
-    memcpy(&tile_mem[4][8], lrguideTiles, lrguideTilesLen);
-    memcpy(&tile_mem[4][12], udguideTiles, udguideTilesLen);
+    memcpy(&tile_mem[4][8], lguideTiles, lguideTilesLen);
+    memcpy(&tile_mem[4][12], dguideTiles, dguideTilesLen);
+    memcpy(&tile_mem[4][16], uguideTiles, uguideTilesLen);
+    memcpy(&tile_mem[4][20], rguideTiles, rguideTilesLen);
 
     // don't need until bg is more complicated than a single color
     //memcpy(&tile_mem[0][0], bgTiles, bgTilesLen);
@@ -27,7 +31,7 @@ void setup_graphics()
     // store palettes into object & bg palette mem
     // each palette entry is 16 bits, get 16 palette entries per sprite
     memcpy(pal_obj_mem, lrarrowPal, lrarrowPalLen);
-    memcpy(&pal_obj_mem[16], lrguidePal, lrguidePalLen);
+    memcpy(&pal_obj_mem[16], lguidePal, lguidePalLen);
     *pal_bg_mem = bgPal[0];
     //memcpy(pal_bg_mem, bgPal, bgPalLen);
 
@@ -55,19 +59,10 @@ void setup_sprites(OBJ_ATTR ** sprites, u32 tid, u32 pb, int * x, int * y)
 void setup_aff_sprites(OBJ_ATTR ** sprites, OBJ_AFFINE ** aff_attr,
         u32 tid, u32 pb, int * x, int * y)
 {
-    obj_set_attr(sprites[0], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(0),
-            ATTR2_PALBANK(pb) | tid);
-    obj_set_attr(sprites[1], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(1),
-            ATTR2_PALBANK(pb) | (tid + 4));
-    obj_set_attr(sprites[2], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(2),
-            ATTR2_PALBANK(pb) | tid);
-    obj_set_attr(sprites[3], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(3),
-            ATTR2_PALBANK(pb) | (tid + 4));
-    obj_aff_rotate(aff_attr[0], 0x0000);
-    obj_aff_rotate(aff_attr[1], 0x0000);
-    obj_aff_rotate(aff_attr[2], 0xc000);
-    obj_aff_rotate(aff_attr[3], 0x4000);
-
     int i;
-    for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(sprites[i], x[i], y[i]);
+    for (i = 0; i < NUM_ARROWS; i++) {
+        obj_set_attr(sprites[i], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(i),
+                ATTR2_PALBANK(pb) | (tid + (4 * i)));
+        obj_set_pos(sprites[i], x[i], y[i]);
+    }
 }

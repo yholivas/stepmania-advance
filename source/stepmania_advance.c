@@ -19,7 +19,7 @@ int main()
 
     // starting sprite positions
     int y_guide[NUM_ARROWS] = {16, 16, 16, 14};
-    int x_guide[NUM_ARROWS] = {L_ARR_POS, D_ARR_POS, U_ARR_POS - 2, R_ARR_POS};
+    int x_guide[NUM_ARROWS] = {L_ARR_POS, D_ARR_POS, U_ARR_POS - 1, R_ARR_POS};
     int y[NUM_ARROWS] = {160, 160, 160, 160};
     int x[NUM_ARROWS] = {L_ARR_POS, D_ARR_POS, U_ARR_POS, R_ARR_POS};
 
@@ -37,12 +37,23 @@ int main()
     setup_aff_sprites(guide_arrows, aff_guides, 8, 1, x_guide, y_guide);
 
     while (1) {
-        vid_vsync();
+        key_poll();
+        if (key_is_down(KEY_L)) obj_aff_scale(aff_guides[0], 0x0180, 0x0180);
+        else obj_aff_scale(aff_guides[0], 0x0100, 0x0100);
+        if (key_is_down(KEY_DOWN)) obj_aff_scale(aff_guides[1], 0x0180, 0x0180);
+        else obj_aff_scale(aff_guides[1], 0x0100, 0x0100);
+        if (key_is_down(KEY_B)) obj_aff_scale(aff_guides[2], 0x0180, 0x0180);
+        else obj_aff_scale(aff_guides[2], 0x0100, 0x0100);
+        if (key_is_down(KEY_R)) obj_aff_scale(aff_guides[3], 0x0180, 0x0180);
+        else obj_aff_scale(aff_guides[3], 0x0100, 0x0100);
+        //if (key_hit(KEY_DOWN | KEY_UP | KEY_LEFT | KEY_RIGHT))
+        //    obj_aff_scale(
         for (i = 0; i < NUM_ARROWS; i++) {
             y[i] -= 2;
             if (y[i] <= -16 || y[i] > 160) y[i] = 160;
         }
         for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(arrows[i], x[i], y[i]);
+        vid_vsync();
         oam_copy(oam_mem, obj_buffer, 8);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);
     }
