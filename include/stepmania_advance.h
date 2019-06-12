@@ -5,5 +5,6 @@
 #define STEPMANIA_ADVANCE_H
 
 extern OBJ_ATTR obj_buffer[128];
+extern OBJ_AFFINE obj_aff_buf[4];
 
 #endif //STEPMANIA_ADVANCE_H

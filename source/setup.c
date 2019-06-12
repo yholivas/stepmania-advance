@@ -51,3 +51,23 @@ void setup_sprites(OBJ_ATTR ** sprites, u32 tid, u32 pb, int * x, int * y)
     int i;
     for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(sprites[i], x[i], y[i]);
 }
+
+void setup_aff_sprites(OBJ_ATTR ** sprites, OBJ_AFFINE ** aff_attr,
+        u32 tid, u32 pb, int * x, int * y)
+{
+    obj_set_attr(sprites[0], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(0),
+            ATTR2_PALBANK(pb) | tid);
+    obj_set_attr(sprites[1], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(1),
+            ATTR2_PALBANK(pb) | (tid + 4));
+    obj_set_attr(sprites[2], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(2),
+            ATTR2_PALBANK(pb) | tid);
+    obj_set_attr(sprites[3], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(3),
+            ATTR2_PALBANK(pb) | (tid + 4));
+    obj_aff_rotate(aff_attr[0], 0x0000);
+    obj_aff_rotate(aff_attr[1], 0x0000);
+    obj_aff_rotate(aff_attr[2], 0xc000);
+    obj_aff_rotate(aff_attr[3], 0x4000);
+
+    int i;
+    for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(sprites[i], x[i], y[i]);
+}
