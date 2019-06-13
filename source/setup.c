@@ -64,5 +64,6 @@ void setup_aff_sprites(OBJ_ATTR ** sprites, OBJ_AFFINE ** aff_attr,
         obj_set_attr(sprites[i], ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(i),
                 ATTR2_PALBANK(pb) | (tid + (4 * i)));
         obj_set_pos(sprites[i], x[i], y[i]);
+        obj_aff_identity(aff_attr[i]);
     }
 }

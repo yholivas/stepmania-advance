@@ -38,7 +38,7 @@ int main()
 
     // mapping keys to arrows
     int keys[NUM_ARROWS] = {KEY_L, KEY_DOWN | KEY_UP | KEY_RIGHT | KEY_LEFT,
-        KEY_B | KEY_A, KEY_R}
+        KEY_B | KEY_A, KEY_R};
 
     u32 frames = 0;
     while (1) {
@@ -46,11 +46,11 @@ int main()
         for (i = 0; i < NUM_ARROWS; i++) {
             if (key_hit(keys[i])) {
                 if (y[i] < 19 && y[i] > 13)
-                    y[0] = 160;
+                    y[i] = 160;
                 else
                     obj_aff_scale(aff_guides[i], 0x0180, 0x0180);
             }
-            if (key_released(keys[i])) obj_aff_scale(aff_guides[0], 0x0100, 0x0100);
+            if (key_released(keys[i])) obj_aff_scale(aff_guides[i], 0x0100, 0x0100);
             if (y[i] == 160) {
                 if ((frames & 63) == (i * 16)) y[i] -= 2;
             } else if (y[i] <= -16 || y[i] > 160) {
