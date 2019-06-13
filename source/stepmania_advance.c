@@ -36,26 +36,34 @@ int main()
     //setup_sprites(guide_arrows, 8, 1, x, y_guide); // tile id, pal-bank
     setup_aff_sprites(guide_arrows, aff_guides, 8, 1, x_guide, y_guide);
 
+    // mapping keys to arrows
+    int keys[NUM_ARROWS] = {KEY_L, KEY_DOWN | KEY_UP | KEY_RIGHT | KEY_LEFT,
+        KEY_B | KEY_A, KEY_R}
+
+    u32 frames = 0;
     while (1) {
         key_poll();
-        if (key_is_down(KEY_L)) obj_aff_scale(aff_guides[0], 0x0180, 0x0180);
-        else obj_aff_scale(aff_guides[0], 0x0100, 0x0100);
-        if (key_is_down(KEY_DOWN)) obj_aff_scale(aff_guides[1], 0x0180, 0x0180);
-        else obj_aff_scale(aff_guides[1], 0x0100, 0x0100);
-        if (key_is_down(KEY_B)) obj_aff_scale(aff_guides[2], 0x0180, 0x0180);
-        else obj_aff_scale(aff_guides[2], 0x0100, 0x0100);
-        if (key_is_down(KEY_R)) obj_aff_scale(aff_guides[3], 0x0180, 0x0180);
-        else obj_aff_scale(aff_guides[3], 0x0100, 0x0100);
-        //if (key_hit(KEY_DOWN | KEY_UP | KEY_LEFT | KEY_RIGHT))
-        //    obj_aff_scale(
         for (i = 0; i < NUM_ARROWS; i++) {
-            y[i] -= 2;
-            if (y[i] <= -16 || y[i] > 160) y[i] = 160;
+            if (key_hit(keys[i])) {
+                if (y[i] < 19 && y[i] > 13)
+                    y[0] = 160;
+                else
+                    obj_aff_scale(aff_guides[i], 0x0180, 0x0180);
+            }
+            if (key_released(keys[i])) obj_aff_scale(aff_guides[0], 0x0100, 0x0100);
+            if (y[i] == 160) {
+                if ((frames & 63) == (i * 16)) y[i] -= 2;
+            } else if (y[i] <= -16 || y[i] > 160) {
+                y[i] = 160;
+            } else {
+                y[i] -= 2;
+            }
         }
         for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(arrows[i], x[i], y[i]);
         vid_vsync();
         oam_copy(oam_mem, obj_buffer, 8);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);
+        frames++;
     }
 
     return 0;
