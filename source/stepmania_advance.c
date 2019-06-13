@@ -31,14 +31,18 @@ int main()
 
     u32 frames = 0;
     while (1) {
-        vid_vsync();
         for (i = 0; i < NUM_ARROWS; i++) {
-            if ((frames & 64) != (16 * i)) continue;
-            y[i] -= 2;
-            if (y[i] <= -16 || y[i] > 160) y[i] = 160;
+            if (y[i] == 160) {
+                if ((frames & 63) == (i * 16)) y[i] -= 2;
+            } else if (y[i] <= -16 || y[i] > 160) {
+                y[i] = 160;
+            } else {
+                y[i] -= 2;
+            }
         }
         for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(arrows[i], x[i], y[i]);
 
+        vid_vsync();
         oam_copy(oam_mem, obj_buffer, 4);
         frames++;
     }
