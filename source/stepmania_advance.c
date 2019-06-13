@@ -31,6 +31,11 @@ int main()
 
     u32 frames = 0;
     while (1) {
+        key_poll();
+        if (key_hit(KEY_L) && (y[0] < 19 && y[0] > 13)) y[0] = 160;
+        if (key_hit(KEY_DOWN) && (y[1] < 19 && y[1] > 13)) y[1] = 160;
+        if (key_hit(KEY_B) && (y[2] < 19 && y[2] > 13)) y[2] = 160;
+        if (key_hit(KEY_R) && (y[3] < 19 && y[3] > 13)) y[3] = 160;
         for (i = 0; i < NUM_ARROWS; i++) {
             if (y[i] == 160) {
                 if ((frames & 63) == (i * 16)) y[i] -= 2;
