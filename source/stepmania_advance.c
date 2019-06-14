@@ -18,7 +18,7 @@ int main()
     setup_graphics();
 
     // starting sprite positions
-    int y_guide[NUM_ARROWS] = {16, 16, 16, 14};
+    int y_guide[NUM_ARROWS] = {16, 16, 16, 15};
     int x_guide[NUM_ARROWS] = {L_ARR_POS, D_ARR_POS, U_ARR_POS - 1, R_ARR_POS};
     int y[NUM_ARROWS] = {160, 160, 160, 160};
     int x[NUM_ARROWS] = {L_ARR_POS, D_ARR_POS, U_ARR_POS, R_ARR_POS};
