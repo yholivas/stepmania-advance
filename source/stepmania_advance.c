@@ -15,28 +15,24 @@ int main()
 {
     int i;
 
-    setup_graphics();
+    struct guide_arrow guides[NUM_ARROWS];
 
-    // starting sprite positions
-    int y_guide[NUM_ARROWS] = {16, 16, 16, 15};
-    int x_guide[NUM_ARROWS] = {L_ARR_POS, D_ARR_POS, U_ARR_POS - 1, R_ARR_POS};
-    int y[NUM_ARROWS] = {160, 160, 160, 160};
-    int x[NUM_ARROWS] = {L_ARR_POS, D_ARR_POS, U_ARR_POS, R_ARR_POS};
+    // allocate mem for objs, copy sprite & bg data to VRAM
+    setup_graphics();
 
     // sprite arrays
     OBJ_AFFINE * aff_guides[NUM_ARROWS];
-    OBJ_ATTR * arrows[NUM_ARROWS], * guide_arrows[NUM_ARROWS];
+    OBJ_ATTR * arrows[NUM_ARROWS], * guide_objs[NUM_ARROWS];
     for (i = 0; i < NUM_ARROWS; i++) {
         arrows[i] = &obj_buffer[i];
-        guide_arrows[i] = &obj_buffer[4 + i];
-        aff_guides[i] = &obj_aff_buf[i];
+        guide_objs[i] = &obj_buffer[4 + i];
+        guides[i].aff = &obj_aff_buf[i];
     }
 
     setup_sprites(arrows, 0, 0, x, y); // tile id, pal-bank
-    //setup_sprites(guide_arrows, 8, 1, x, y_guide); // tile id, pal-bank
     setup_aff_sprites(guide_arrows, aff_guides, 8, 1, x_guide, y_guide);
 
-    // mapping keys to arrows
+    // key to arrow mask
     int keys[NUM_ARROWS] = {KEY_L, KEY_DOWN | KEY_UP | KEY_RIGHT | KEY_LEFT,
         KEY_B | KEY_A, KEY_R};
 
