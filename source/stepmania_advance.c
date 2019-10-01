@@ -2,6 +2,7 @@
 
 #include "stepmania_advance.h"
 #include "setup.h"
+#include "row_list.h"
 
 #define L_ARR_POS 85
 #define D_ARR_POS 103
@@ -11,6 +12,8 @@
 // copy of object memory
 OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE obj_aff_buf[4];
+// might need if static variables are stored in the cartridge ROM 
+//static struct note_row rows[32];
 int main()
 {
     int i;
@@ -36,25 +39,19 @@ int main()
     int keys[NUM_ARROWS] = {KEY_L, KEY_DOWN | KEY_UP | KEY_RIGHT | KEY_LEFT,
         KEY_B | KEY_A, KEY_R};
 
+    struct note_row rows[32];
+    int row_idx = 0;
+    // clear note row memory just in case
+    for (i = 0; i < 32; i++) free_row(rows + (sizeof(struct note_row) * i));
+
     u32 frames = 0;
     while (1) {
-        key_poll();
-        for (i = 0; i < NUM_ARROWS; i++) {
-            if (key_hit(keys[i])) {
-                if (y[i] < 19 && y[i] > 13)
-                    y[i] = 160;
-                else
-                    obj_aff_scale(aff_guides[i], 0x0180, 0x0180);
-            }
-            if (key_released(keys[i])) obj_aff_scale(aff_guides[i], 0x0100, 0x0100);
-            if (y[i] == 160) {
-                if ((frames & 63) == (i * 16)) y[i] -= 2;
-            } else if (y[i] <= -16 || y[i] > 160) {
-                y[i] = 160;
-            } else {
-                y[i] -= 2;
-            }
-        }
+        // use animation state machine for guide arrow shrinkage
+        if (!check_key_presses(rows, &row_idx, keys))
+            obj_aff_scale(aff_guides[i], 0x0180, 0x0180);
+        else 
+            obj_aff_scale(aff_guides[i], 0x0100, 0x0100);
+        arrow_flight(rows, row_idx);
         for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(arrows[i], x[i], y[i]);
         vid_vsync();
         oam_copy(oam_mem, obj_buffer, 8);

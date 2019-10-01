@@ -12,6 +12,10 @@ struct note_row {
 };
 
 // requires head to not be null
-void check_key_presses(struct note_row * head, int * keys);
+bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys);
+
+void arrow_flight(struct note_row * rows, int idx);
+
+void free_row(struct note_row * row);
 
 #endif //ROW_LIST_H
