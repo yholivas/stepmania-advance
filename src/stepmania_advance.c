@@ -37,7 +37,6 @@ int main()
     for (i = 0; i < 32; i++) free_row(rows + (sizeof(struct note_row) * i));
 
     while (1) {
-        check_key_presses(rows, &row_idx, keys);
         // use animation state machine for guide arrow shrinkage
         // also need to keep track of which arrow was pressed (rather than passing a boolean)
         /*
@@ -45,8 +44,13 @@ int main()
             obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
         else 
             obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
-            */
-        arrow_flight(rows, row_idx);
+        */
+        key_poll();
+        for (i = 0; i < NUM_ARROWS; i++) {
+            if (key_hit(keys[i])) obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
+            if (key_released(keys[i])) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
+        }
+        //arrow_flight(rows, row_idx);
         vid_vsync();
         oam_copy(oam_mem, obj_buffer, 8);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);
