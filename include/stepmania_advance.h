@@ -4,12 +4,14 @@
 #ifndef STEPMANIA_ADVANCE_H
 #define STEPMANIA_ADVANCE_H
 
+// guide arrow should contain:
+//   4 OAM objects
+//   4 affine objects
+//   palbank to control color for animation
 struct guide_arrow {
     int palbank;
     OBJ_AFFINE * aff;
+    OBJ_ATTR * obj;
 };
-
-extern OBJ_ATTR obj_buffer[128];
-extern OBJ_AFFINE obj_aff_buf[4];
 
 #endif //STEPMANIA_ADVANCE_H

@@ -1,3 +1,0 @@
-make sure you have libgba and libtonc installed from devkitpro
-run 'source devkit/devkit-env.sh' before building
-then run the makefile to build an executable

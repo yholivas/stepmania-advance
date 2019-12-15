@@ -5,6 +5,9 @@
 #define JUDGE_LO 19
 #define JUDGE_HI 13
 
+#define NUM_ARROWS 4
+#define NUM_ROWS   32
+
 // check key press function should only operate until end of timing window
 // return score for key press
 // right now return true for arrow hit or false for arrow not hit
@@ -18,18 +21,18 @@ bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys)
     while (curr->notes) {
         for (i = 0; i < NUM_ARROWS; i++) {
             int mask = 1 << i;
-            if (key_hit(keys[i]) && head->notes & mask) {
+            if (key_hit(keys[i]) && curr->notes & mask) {
                 if (y < JUDGE_LO && y > JUDGE_HI) {
                     free_row(curr);
                     idx++;
-                    idx % 32;
+                    idx %= NUM_ROWS;
                     *idx_ptr = idx;
                     return true;
                 }
             }
         }
         idx++;
-        idx % 32;
+        idx %= NUM_ROWS;
         curr = rows + (sizeof(struct note_row) * idx);
         y = curr->y;
     }
@@ -45,7 +48,7 @@ void arrow_flight(struct note_row * rows, int idx) {
         if (y <= -16 || y > 160) free_row(curr);
         else curr->y -= 2;
         idx++;
-        idx % 32;
+        idx %= NUM_ROWS;
         curr = rows + (sizeof(struct note_row) * idx);
         y = curr->y;
     }

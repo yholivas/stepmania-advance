@@ -1,6 +1,8 @@
 #ifndef ROW_LIST_H
 #define ROW_LIST_H
 
+#define NUM_ROWS 32
+
 enum notediv {Fourth, Eighth, Twelfth, Sixteenth, Twentyfourth, Thirtysecond};
 
 // notes is just a 4-bit note word
@@ -9,6 +11,7 @@ struct note_row {
     int notes;
     int y;
     enum notediv div;
+    OBJ_ATTR * sprites[4];
 };
 
 // requires head to not be null
