@@ -13,11 +13,11 @@ int main()
     int i;
 
     struct guide_arrow guides[NUM_ARROWS];
+    struct note_row rows[NUM_ROWS];
 
     // allocate mem for objs, copy sprite & bg data to VRAM
     setup_graphics();
 
-    //OBJ_ATTR * arrows[NUM_ARROWS], * guide_objs[NUM_ARROWS];
     for (i = 0; i < NUM_ARROWS; i++) {
         //arrows[i] = &obj_buffer[i];
         guides[i].obj = &obj_buffer[i];
@@ -31,10 +31,10 @@ int main()
     int keys[NUM_ARROWS] = {KEY_L, KEY_DOWN | KEY_UP | KEY_RIGHT | KEY_LEFT,
         KEY_B | KEY_A, KEY_R};
 
-    struct note_row rows[NUM_ROWS];
-    int row_idx = 0;
     // clear note row memory just in case
     for (i = 0; i < 32; i++) free_row(rows + (sizeof(struct note_row) * i));
+
+    struct note_row * row = row_alloc(rows, 15, Fourth);
 
     while (1) {
         // use animation state machine for guide arrow shrinkage
@@ -50,7 +50,7 @@ int main()
             if (key_hit(keys[i])) obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
             if (key_released(keys[i])) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
         }
-        //arrow_flight(rows, row_idx);
+        arrow_flight(rows);
         vid_vsync();
         oam_copy(oam_mem, obj_buffer, 8);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);

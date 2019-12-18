@@ -2,12 +2,13 @@
 #define SETUP_H
 
 #include "stepmania_advance.h"
+#include "row_list.h"
 
 #define NUM_ARROWS 4
 
 void setup_graphics();
 
-void setup_row(OBJ_ATTR ** sprites, u32 tid, u32 pb, int * y);
+void setup_row(struct note_row * row);
 
 void setup_guides(struct guide_arrow * guides);
 

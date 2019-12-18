@@ -44,20 +44,24 @@ void setup_graphics()
     REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0;
 }
 
-void setup_row(OBJ_ATTR ** sprites, u32 tid, u32 pb, int * y)
+void setup_row(struct note_row * row)
 {
-    obj_set_attr(sprites[0], ATTR0_SQUARE, ATTR1_SIZE_16,
+    // TODO: replace fixed pb and tid with ones based on timing/notediv
+    u32 tid = 0;
+    u32 pb = 0;
+
+    obj_set_attr(row->sprites[0], ATTR0_SQUARE, ATTR1_SIZE_16,
             ATTR2_PALBANK(pb) | tid);
-    obj_set_attr(sprites[1], ATTR0_SQUARE, ATTR1_SIZE_16,
+    obj_set_attr(row->sprites[1], ATTR0_SQUARE, ATTR1_SIZE_16,
             ATTR2_PALBANK(pb) | (tid+4));
-    obj_set_attr(sprites[2], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_VFLIP,
+    obj_set_attr(row->sprites[2], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_VFLIP,
             ATTR2_PALBANK(pb) | (tid+4));
-    obj_set_attr(sprites[3], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_HFLIP,
+    obj_set_attr(row->sprites[3], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_HFLIP,
             ATTR2_PALBANK(pb) | tid);
 
     // position sprites
     int i;
-    for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(sprites[i], x[i], y[i]);
+    for (i = 0; i < NUM_ARROWS; i++) obj_set_pos(row->sprites[i], x[i], row->y);
 }
 
 void setup_guides(struct guide_arrow * guides)
@@ -65,7 +69,7 @@ void setup_guides(struct guide_arrow * guides)
     int i;
     for (i = 0; i < NUM_ARROWS; i++) {
         obj_set_attr(guides[i].obj, ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(i),
-                ATTR2_PALBANK(GDE_PB) | (GDE_TID + (4 * i)));
+                ATTR2_PALBANK(GDE_PB) | (GDE_TID + (4 * i)) | ATTR2_PRIO(3));
         obj_set_pos(guides[i].obj, x_guide[i], y_guide[i]);
         obj_aff_identity(guides[i].aff);
     }

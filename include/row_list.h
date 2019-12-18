@@ -14,10 +14,12 @@ struct note_row {
     OBJ_ATTR * sprites[4];
 };
 
+struct note_row * row_alloc(struct note_row * rows, int notes, enum notediv);
+
 // requires head to not be null
 bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys);
 
-void arrow_flight(struct note_row * rows, int idx);
+void arrow_flight(struct note_row * rows);
 
 void free_row(struct note_row * row);
 
