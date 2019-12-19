@@ -34,7 +34,7 @@ int main()
     // clear note row memory just in case
     for (i = 0; i < 32; i++) free_row(rows + (sizeof(struct note_row) * i));
 
-    struct note_row * row = row_alloc(rows, 15, Fourth);
+    struct note_row * row = row_alloc(rows, 15, Eighth);
 
     while (1) {
         // use animation state machine for guide arrow shrinkage

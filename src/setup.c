@@ -13,6 +13,7 @@
 #include "uguide.h"
 #include "rguide.h"
 #include "bg.h"
+#include "arrow_pals.h"
 
 #define GDE_TID 8
 #define GDE_PB  1
@@ -34,8 +35,12 @@ void setup_graphics()
 
     // store palettes into object & bg palette mem
     // each palette entry is 16 bits, get 16 palette entries per sprite
-    memcpy(pal_obj_mem, lrarrowPal, lrarrowPalLen);
-    memcpy(&pal_obj_mem[16], lguidePal, lguidePalLen);
+    memcpy(pal_obj_mem, FourthPal, PalLen);
+    memcpy(&pal_obj_mem[16], EighthPal, PalLen);
+    memcpy(&pal_obj_mem[32], TwelfthPal, PalLen);
+    memcpy(&pal_obj_mem[48], SixteenthPal, PalLen);
+    memcpy(&pal_obj_mem[64], TwelfthPal, PalLen);
+    memcpy(&pal_obj_mem[80], ThirtysecondPal, PalLen);
     *pal_bg_mem = bgPal[0];
     //memcpy(pal_bg_mem, bgPal, bgPalLen);
 
@@ -48,7 +53,7 @@ void setup_row(struct note_row * row)
 {
     // TODO: replace fixed pb and tid with ones based on timing/notediv
     u32 tid = 0;
-    u32 pb = 0;
+    u32 pb = row->div;
 
     obj_set_attr(row->sprites[0], ATTR0_SQUARE, ATTR1_SIZE_16,
             ATTR2_PALBANK(pb) | tid);

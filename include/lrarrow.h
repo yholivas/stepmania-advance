@@ -20,9 +20,6 @@
 #define lrarrowTilesLen 128
 extern const unsigned int lrarrowTiles[32];
 
-#define lrarrowPalLen 32
-extern const unsigned short lrarrowPal[16];
-
 #endif // GRIT_LRARROW_H
 
 //}}BLOCK(lrarrow)

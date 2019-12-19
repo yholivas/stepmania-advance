@@ -20,9 +20,6 @@
 #define udarrowTilesLen 128
 extern const unsigned int udarrowTiles[32];
 
-#define udarrowPalLen 32
-extern const unsigned short udarrowPal[16];
-
 #endif // GRIT_UDARROW_H
 
 //}}BLOCK(udarrow)
