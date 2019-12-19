@@ -70,16 +70,23 @@ bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys)
     return false;
 }
 
-// make simpler row iteration function that simply decrements y coord in all rows
+// use 'notes' field of note_row struct to figure out what notes to change position
+// use 'y' field of note_row struct to determine position of all notes in row
 void arrow_flight(struct note_row * rows) {
     for (int i = 0; i < NUM_ROWS; i++) {
-        // TODO: undo comment later if (y <= -16 || y > 160) free_row(curr);
-        if (rows[i].notes == 0) continue;
+        int notes = rows[i].notes;
+        // TODO: undo comment later // if (y <= -16 || y > 160) free_row(curr);
+        if (notes == 0) continue;
         int y = rows[i].y;
-        if (y <= -16 || y > 160) rows[i].y = 160;
-        else rows[i].y -= 2;
+        if (y <= -16 || y > 160) y = 160;
+        else y -= 2;
         for (int j = 0; j  < NUM_ARROWS; j++)
             obj_set_pos(rows[i].sprites[j], x[j], rows[i].y);
+        if (notes & 8) { obj_set_pos(rows[i].sprites[0], x[0], y); }
+        if (notes & 4) { obj_set_pos(rows[i].sprites[1], x[1], y); }
+        if (notes & 2) { obj_set_pos(rows[i].sprites[2], x[2], y); }
+        if (notes & 1) { obj_set_pos(rows[i].sprites[3], x[3], y); }
+        rows[i].y = y;
     }
 }
 
@@ -88,4 +95,6 @@ void free_row(struct note_row * row) {
     row->notes = 0;
     row->y = 160;
     row->div = 0;
+    for (int i = 0; i < NUM_ARROWS; i++)
+        obj_set_attr(row->sprites[i], 0, 0, 0);
 }
