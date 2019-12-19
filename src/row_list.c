@@ -8,6 +8,9 @@
 #define JUDGE_LO 19
 #define JUDGE_HI 13
 
+static int row_idx = 0;
+static int obj_idx = 4;
+
 // parameters:
 //  TODO: figure out if you should store note rows in a static buffer or the stack
 //  struct note_row rows[] - array of note row structs to look in
@@ -19,15 +22,18 @@ struct note_row * row_alloc(struct note_row * rows, int notes, enum notediv timi
 {
     // TODO: implement searching logic
     //  right now it just returns the first row
-    struct note_row * row = rows;
+    struct note_row * row = &rows[row_idx];
+    row_idx = (row_idx + 1) & (NUM_ROWS - 1);
     row->notes = notes;
     row->y = 160;
     row->div = timing;
     // TODO: implement searching for empty objects in obj_buffer
     //  right now it just returns the first four
-    for (int i = 0; i < NUM_ROWS; i++) {
-        row->sprites[i] = &obj_buffer[4 + i];
-    }
+    // TODO: skip first four objs somehow since they contain the guide sprites
+    if (notes & 8) { row->sprites[0] = &obj_buffer[obj_idx]; obj_idx++; }
+    if (notes & 4) { row->sprites[1] = &obj_buffer[obj_idx]; obj_idx++; }
+    if (notes & 2) { row->sprites[2] = &obj_buffer[obj_idx]; obj_idx++; }
+    if (notes & 1) { row->sprites[3] = &obj_buffer[obj_idx]; obj_idx++; }
     setup_row(row);
     return row;
 }

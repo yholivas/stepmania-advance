@@ -34,7 +34,9 @@ int main()
     // clear note row memory just in case
     for (i = 0; i < 32; i++) free_row(rows + (sizeof(struct note_row) * i));
 
+    row_alloc(rows, 15, Fourth);
     struct note_row * row = row_alloc(rows, 15, Eighth);
+    row->y = 80;
 
     while (1) {
         // use animation state machine for guide arrow shrinkage
@@ -52,7 +54,9 @@ int main()
         }
         arrow_flight(rows);
         vid_vsync();
-        oam_copy(oam_mem, obj_buffer, 8);
+        // hopefully there are no ill effects associated with rewriting the entirety of
+        //  OAM memory every frame : )
+        oam_copy(oam_mem, obj_buffer, 128);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);
     }
 

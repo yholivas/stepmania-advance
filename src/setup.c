@@ -51,7 +51,6 @@ void setup_graphics()
 
 void setup_row(struct note_row * row)
 {
-    // TODO: replace fixed pb and tid with ones based on timing/notediv
     u32 tid = 0;
     u32 pb = row->div;
 
