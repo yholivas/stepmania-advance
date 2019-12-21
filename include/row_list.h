@@ -14,7 +14,7 @@ struct note_row {
     OBJ_ATTR * sprites[4];
 };
 
-struct note_row * row_alloc(struct note_row * rows, int notes, enum notediv);
+struct note_row * get_row(struct note_row * rows);
 
 // requires head to not be null
 bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys);

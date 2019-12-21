@@ -1,39 +1,39 @@
 #include <tonc.h>
 
 #include "arrows.h"
-#include "row_list.h"
 #include "buffers.h"
+#include "chart.h"
+#include "row_list.h"
 #include "setup.h"
 
 #define JUDGE_LO 19
 #define JUDGE_HI 13
 
+static int next_row = 0;
 static int row_idx = 0;
-static int obj_idx = 4;
+static int obj_idx = 0;
 
 // parameters:
-//  TODO: figure out if you should store note rows in a static buffer or the stack
 //  struct note_row rows[] - array of note row structs to look in
-//  int notes - what notes to allocate objects for
-//  enum notediv - what timing the notes follow
 // returns:
 //  note row pointer with objects filled out
-struct note_row * row_alloc(struct note_row * rows, int notes, enum notediv timing)
+struct note_row * get_row(struct note_row * rows)
 {
-    // TODO: implement searching logic
-    //  right now it just returns the first row
+    if (next_row == ROW_COUNT) return NULL;
     struct note_row * row = &rows[row_idx];
     row_idx = (row_idx + 1) & (NUM_ROWS - 1);
+    int packed_row = test_chart[next_row];
+    next_row++;
+    int notes = packed_row & 0b1111;
     row->notes = notes;
     row->y = 160;
-    row->div = timing;
-    // TODO: implement searching for empty objects in obj_buffer
-    //  right now it just returns the first four
-    // TODO: skip first four objs somehow since they contain the guide sprites
-    if (notes & 8) { row->sprites[0] = &obj_buffer[obj_idx]; obj_idx++; }
-    if (notes & 4) { row->sprites[1] = &obj_buffer[obj_idx]; obj_idx++; }
-    if (notes & 2) { row->sprites[2] = &obj_buffer[obj_idx]; obj_idx++; }
-    if (notes & 1) { row->sprites[3] = &obj_buffer[obj_idx]; obj_idx++; }
+    row->div = packed_row >> 4;
+    // TODO: probably have to fix this up to be less reliant on copy-pasted code sections
+    //  and also have to make obj_idx mod 124
+    if (notes & 8) { row->sprites[0] = &obj_buffer[4 + obj_idx]; obj_idx++; }
+    if (notes & 4) { row->sprites[1] = &obj_buffer[4 + obj_idx]; obj_idx++; }
+    if (notes & 2) { row->sprites[2] = &obj_buffer[4 + obj_idx]; obj_idx++; }
+    if (notes & 1) { row->sprites[3] = &obj_buffer[4 + obj_idx]; obj_idx++; }
     setup_row(row);
     return row;
 }
@@ -75,12 +75,11 @@ bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys)
 void arrow_flight(struct note_row * rows) {
     for (int i = 0; i < NUM_ROWS; i++) {
         int notes = rows[i].notes;
-        // TODO: undo comment later // if (y <= -16 || y > 160) free_row(curr);
         if (notes == 0) continue;
         int y = rows[i].y;
-        if (y <= -16 || y > 160) y = 160;
+        if (y <= -16 || y > 160) { free_row(&rows[i]); continue; }
         else y -= 2;
-        for (int j = 0; j  < NUM_ARROWS; j++)
+        for (int j = 0; j < NUM_ARROWS; j++)
             obj_set_pos(rows[i].sprites[j], x[j], rows[i].y);
         if (notes & 8) { obj_set_pos(rows[i].sprites[0], x[0], y); }
         if (notes & 4) { obj_set_pos(rows[i].sprites[1], x[1], y); }
@@ -96,5 +95,5 @@ void free_row(struct note_row * row) {
     row->y = 160;
     row->div = 0;
     for (int i = 0; i < NUM_ARROWS; i++)
-        obj_set_attr(row->sprites[i], 0, 0, 0);
+        obj_set_attr(row->sprites[i], ATTR0_HIDE, 0, 0);
 }

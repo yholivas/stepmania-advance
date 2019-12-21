@@ -34,14 +34,7 @@ int main()
     // clear note row memory just in case
     for (i = 0; i < 32; i++) free_row(rows + (sizeof(struct note_row) * i));
 
-    row_alloc(rows, 0b0001, Fourth);
-    struct note_row * row1 = row_alloc(rows, 0b0010, Eighth);
-    struct note_row * row2 = row_alloc(rows, 0b1000, Fourth);
-    struct note_row * row3 = row_alloc(rows, 0b0100, Eighth);
-    
-    row1->y = 120;
-    row2->y = 80;
-    row3->y = 40;
+    int frame = 0;
 
     while (1) {
         // use animation state machine for guide arrow shrinkage
@@ -52,6 +45,8 @@ int main()
         else 
             obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
         */
+        if ((frame & 63) == 0) get_row(rows);
+
         key_poll();
         for (i = 0; i < NUM_ARROWS; i++) {
             if (key_hit(keys[i])) obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
@@ -63,6 +58,7 @@ int main()
         //  OAM memory every frame : )
         oam_copy(oam_mem, obj_buffer, 128);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);
+        frame++;
     }
 
     return 0;
