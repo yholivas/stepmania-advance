@@ -1,7 +1,7 @@
 #ifndef ROW_LIST_H
 #define ROW_LIST_H
 
-#define NUM_ROWS 32
+#define MAX_ROWS 32
 
 enum notediv {Fourth, Eighth, Twelfth, Sixteenth, Twentyfourth, Thirtysecond};
 

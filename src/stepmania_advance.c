@@ -13,7 +13,7 @@ int main()
     int i;
 
     struct guide_arrow guides[NUM_ARROWS];
-    struct note_row rows[NUM_ROWS];
+    struct note_row rows[MAX_ROWS];
 
     // allocate mem for objs, copy sprite & bg data to VRAM
     setup_graphics();

@@ -21,19 +21,20 @@ struct note_row * get_row(struct note_row * rows)
 {
     if (next_row == ROW_COUNT) return NULL;
     struct note_row * row = &rows[row_idx];
-    row_idx = (row_idx + 1) & (NUM_ROWS - 1);
+    row_idx = (row_idx + 1) & (MAX_ROWS - 1);
     int packed_row = test_chart[next_row];
     next_row++;
     int notes = packed_row & 0b1111;
     row->notes = notes;
     row->y = 160;
     row->div = packed_row >> 4;
-    // TODO: probably have to fix this up to be less reliant on copy-pasted code sections
-    //  and also have to make obj_idx mod 124
-    if (notes & 8) { row->sprites[0] = &obj_buffer[4 + obj_idx]; obj_idx++; }
-    if (notes & 4) { row->sprites[1] = &obj_buffer[4 + obj_idx]; obj_idx++; }
-    if (notes & 2) { row->sprites[2] = &obj_buffer[4 + obj_idx]; obj_idx++; }
-    if (notes & 1) { row->sprites[3] = &obj_buffer[4 + obj_idx]; obj_idx++; }
+    for (int i = 0; i < 4; i++) {
+        if (notes & (1 << i)) {
+            row->sprites[i] = &obj_buffer[4 + obj_idx];
+            obj_idx++;
+            if (obj_idx > 124) obj_idx = 0;
+        }
+    }
     setup_row(row);
     return row;
 }
@@ -55,14 +56,14 @@ bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys)
                 if (y < JUDGE_LO && y > JUDGE_HI) {
                     free_row(curr);
                     idx++;
-                    idx %= NUM_ROWS;
+                    idx %= MAX_ROWS;
                     *idx_ptr = idx;
                     return true;
                 }
             }
         }
         idx++;
-        idx %= NUM_ROWS;
+        idx %= MAX_ROWS;
         curr = rows + (sizeof(struct note_row) * idx);
         y = curr->y;
     }
@@ -73,7 +74,7 @@ bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys)
 // use 'notes' field of note_row struct to figure out what notes to change position
 // use 'y' field of note_row struct to determine position of all notes in row
 void arrow_flight(struct note_row * rows) {
-    for (int i = 0; i < NUM_ROWS; i++) {
+    for (int i = 0; i < MAX_ROWS; i++) {
         int notes = rows[i].notes;
         if (notes == 0) continue;
         int y = rows[i].y;
@@ -81,10 +82,10 @@ void arrow_flight(struct note_row * rows) {
         else y -= 2;
         for (int j = 0; j < NUM_ARROWS; j++)
             obj_set_pos(rows[i].sprites[j], x[j], rows[i].y);
-        if (notes & 8) { obj_set_pos(rows[i].sprites[0], x[0], y); }
-        if (notes & 4) { obj_set_pos(rows[i].sprites[1], x[1], y); }
-        if (notes & 2) { obj_set_pos(rows[i].sprites[2], x[2], y); }
-        if (notes & 1) { obj_set_pos(rows[i].sprites[3], x[3], y); }
+        if (notes & 1) { obj_set_pos(rows[i].sprites[0], x[0], y); }
+        if (notes & 2) { obj_set_pos(rows[i].sprites[1], x[1], y); }
+        if (notes & 4) { obj_set_pos(rows[i].sprites[2], x[2], y); }
+        if (notes & 8) { obj_set_pos(rows[i].sprites[3], x[3], y); }
         rows[i].y = y;
     }
 }

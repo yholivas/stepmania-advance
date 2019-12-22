@@ -54,13 +54,13 @@ void setup_row(struct note_row * row)
     u32 tid = 0;
     u32 pb = row->div;
 
-    obj_set_attr(row->sprites[0], ATTR0_SQUARE, ATTR1_SIZE_16,
+    obj_set_attr(row->sprites[3], ATTR0_SQUARE, ATTR1_SIZE_16,
             ATTR2_PALBANK(pb) | tid);
-    obj_set_attr(row->sprites[1], ATTR0_SQUARE, ATTR1_SIZE_16,
+    obj_set_attr(row->sprites[2], ATTR0_SQUARE, ATTR1_SIZE_16,
             ATTR2_PALBANK(pb) | (tid+4));
-    obj_set_attr(row->sprites[2], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_VFLIP,
+    obj_set_attr(row->sprites[1], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_VFLIP,
             ATTR2_PALBANK(pb) | (tid+4));
-    obj_set_attr(row->sprites[3], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_HFLIP,
+    obj_set_attr(row->sprites[0], ATTR0_SQUARE, ATTR1_SIZE_16 | ATTR1_HFLIP,
             ATTR2_PALBANK(pb) | tid);
 
     // position sprites
