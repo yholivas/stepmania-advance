@@ -24,10 +24,10 @@ void setup_graphics()
     // arrows take up 2x2 = 4 tiles as they are 16x16 sprites
     memcpy(&tile_mem[4][0], lrarrowTiles, lrarrowTilesLen);
     memcpy(&tile_mem[4][4], udarrowTiles, udarrowTilesLen);
-    memcpy(&tile_mem[4][8], lguideTiles, lguideTilesLen);
-    memcpy(&tile_mem[4][12], dguideTiles, dguideTilesLen);
-    memcpy(&tile_mem[4][16], uguideTiles, uguideTilesLen);
-    memcpy(&tile_mem[4][20], rguideTiles, rguideTilesLen);
+    memcpy(&tile_mem[4][8], rguideTiles, lguideTilesLen);
+    memcpy(&tile_mem[4][12], uguideTiles, dguideTilesLen);
+    memcpy(&tile_mem[4][16], dguideTiles, uguideTilesLen);
+    memcpy(&tile_mem[4][20], lguideTiles, rguideTilesLen);
 
     // don't need until bg is more complicated than a single color
     //memcpy(&tile_mem[0][0], bgTiles, bgTilesLen);

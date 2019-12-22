@@ -9,6 +9,7 @@
 #define JUDGE_LO 19
 #define JUDGE_HI 13
 
+static int base_idx = 0;
 static int next_row = 0;
 static int row_idx = 0;
 static int obj_idx = 0;
@@ -28,7 +29,7 @@ struct note_row * get_row(struct note_row * rows)
     row->notes = notes;
     row->y = 160;
     row->div = packed_row >> 4;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < NUM_ARROWS; i++) {
         if (notes & (1 << i)) {
             row->sprites[i] = &obj_buffer[4 + obj_idx];
             obj_idx++;
@@ -42,32 +43,27 @@ struct note_row * get_row(struct note_row * rows)
 // check key press function should only operate until end of timing window
 // return score for key press
 // right now return true for arrow hit or false for arrow not hit
-bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys)
+bool check_key_presses(struct note_row * rows, int * keys)
 {
+    // TODO: check arrows individually or else jumps will be almost impossible to do
     key_poll();
-    int i = 0;
-    int idx = *idx_ptr;
-    struct note_row * curr = rows + (sizeof(struct note_row) * idx);
-    int y = curr->y;
-    while (curr->notes) {
-        for (i = 0; i < NUM_ARROWS; i++) {
-            int mask = 1 << i;
-            if (key_hit(keys[i]) && curr->notes & mask) {
-                if (y < JUDGE_LO && y > JUDGE_HI) {
-                    free_row(curr);
-                    idx++;
-                    idx %= MAX_ROWS;
-                    *idx_ptr = idx;
-                    return true;
-                }
+    int mask = 0;
+    for (int i = 0; i < NUM_ARROWS; i++) {
+        if(key_hit(keys[i])) mask |= 1 << i;
+    }
+    if (mask == 0) return false;
+
+    for (int i = base_idx; i != row_idx; i = (i + 1) & (MAX_ROWS - 1)) {
+        int y = rows[i].y;
+        int notes = rows[i].notes;
+        if (notes == 0) continue;
+        if (y < JUDGE_LO && y > JUDGE_HI) {
+            if (notes & mask) {
+                free_row(rows, i);
+                return true;
             }
         }
-        idx++;
-        idx %= MAX_ROWS;
-        curr = rows + (sizeof(struct note_row) * idx);
-        y = curr->y;
     }
-    *idx_ptr = idx;
     return false;
 }
 
@@ -78,7 +74,7 @@ void arrow_flight(struct note_row * rows) {
         int notes = rows[i].notes;
         if (notes == 0) continue;
         int y = rows[i].y;
-        if (y <= -16 || y > 160) { free_row(&rows[i]); continue; }
+        if (y <= -16 || y > 160) { free_row(rows, i); continue; }
         else y -= 2;
         for (int j = 0; j < NUM_ARROWS; j++)
             obj_set_pos(rows[i].sprites[j], x[j], rows[i].y);
@@ -91,10 +87,12 @@ void arrow_flight(struct note_row * rows) {
 }
 
 // row clearing function to serve as free/delete
-void free_row(struct note_row * row) {
+void free_row(struct note_row * rows, int idx) {
+    struct note_row * row = &rows[idx];
     row->notes = 0;
     row->y = 160;
     row->div = 0;
     for (int i = 0; i < NUM_ARROWS; i++)
         obj_set_attr(row->sprites[i], ATTR0_HIDE, 0, 0);
+    if (idx == base_idx) base_idx = (base_idx + 1) & (MAX_ROWS - 1);
 }

@@ -28,15 +28,15 @@ int main()
     setup_guides(guides);
 
     // key to arrow mask
-    int keys[NUM_ARROWS] = {KEY_L, KEY_DOWN | KEY_UP | KEY_RIGHT | KEY_LEFT,
-        KEY_B | KEY_A, KEY_R};
+    int keys[NUM_ARROWS] = {KEY_R, KEY_A | KEY_B, KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT, KEY_L};
 
     // clear note row memory just in case
-    for (i = 0; i < 32; i++) free_row(rows + (sizeof(struct note_row) * i));
+    for (i = 0; i < 32; i++) free_row(rows, i);
 
     int frame = 0;
 
     while (1) {
+        bool row_is_hit = check_key_presses(rows, keys);
         // use animation state machine for guide arrow shrinkage
         // also need to keep track of which arrow was pressed (rather than passing a boolean)
         /*
@@ -47,10 +47,9 @@ int main()
         */
         if ((frame & 63) == 0) get_row(rows);
 
-        key_poll();
         for (i = 0; i < NUM_ARROWS; i++) {
             if (key_hit(keys[i])) obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
-            if (key_released(keys[i])) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
+            if (key_released(keys[i]) || row_is_hit) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
         }
         arrow_flight(rows);
         vid_vsync();

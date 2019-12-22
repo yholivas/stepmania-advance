@@ -17,10 +17,10 @@ struct note_row {
 struct note_row * get_row(struct note_row * rows);
 
 // requires head to not be null
-bool check_key_presses(struct note_row * rows, int * idx_ptr, int * keys);
+bool check_key_presses(struct note_row * rows, int * keys);
 
 void arrow_flight(struct note_row * rows);
 
-void free_row(struct note_row * row);
+void free_row(struct note_row * rows, int idx);
 
 #endif //ROW_LIST_H
