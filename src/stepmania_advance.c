@@ -15,8 +15,14 @@ int main()
     struct guide_arrow guides[NUM_ARROWS];
     struct note_row rows[MAX_ROWS];
 
+    // enable interrupts for vblank interrupt (supposed to be less energy-intensive than vid_vsync)
+    irq_init(NULL);
+    irq_add(II_VBLANK, NULL);
     // allocate mem for objs, copy sprite & bg data to VRAM
     setup_graphics();
+
+	tte_init_se(0, BG_CBB(0) | BG_SBB(31), 0, CLR_ORANGE, 0, NULL, NULL);
+	tte_init_con();
 
     for (i = 0; i < NUM_ARROWS; i++) {
         //arrows[i] = &obj_buffer[i];
@@ -34,25 +40,23 @@ int main()
     for (i = 0; i < 32; i++) free_row(rows, i);
 
     int frame = 0;
+    int score = 0;
 
     while (1) {
-        bool row_is_hit = check_key_presses(rows, keys);
-        // use animation state machine for guide arrow shrinkage
-        // also need to keep track of which arrow was pressed (rather than passing a boolean)
-        /*
-        if (!check_key_presses(rows, &row_idx, keys))
-            obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
-        else 
-            obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
-        */
-        if ((frame & 63) == 0) get_row(rows);
+        VBlankIntrWait();
 
+        bool row_is_hit = check_key_presses(rows, keys);
+        if (row_is_hit) score++;
+        tte_printf("#{es;P}Score: %d", score);
+
+        if ((frame & 31) == 0) get_row(rows);
+
+        // TODO: use animation state machine for guide arrow shrinkage
         for (i = 0; i < NUM_ARROWS; i++) {
             if (key_hit(keys[i])) obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
             if (key_released(keys[i]) || row_is_hit) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
         }
         arrow_flight(rows);
-        vid_vsync();
         // hopefully there are no ill effects associated with rewriting the entirety of
         //  OAM memory every frame : )
         oam_copy(oam_mem, obj_buffer, 128);

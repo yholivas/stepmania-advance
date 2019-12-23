@@ -92,7 +92,9 @@ void free_row(struct note_row * rows, int idx) {
     row->notes = 0;
     row->y = 160;
     row->div = 0;
-    for (int i = 0; i < NUM_ARROWS; i++)
+    for (int i = 0; i < NUM_ARROWS; i++) {
         obj_set_attr(row->sprites[i], ATTR0_HIDE, 0, 0);
+        row->sprites[i] = NULL;
+    }
     if (idx == base_idx) base_idx = (base_idx + 1) & (MAX_ROWS - 1);
 }
