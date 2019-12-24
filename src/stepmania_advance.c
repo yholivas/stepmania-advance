@@ -1,8 +1,10 @@
 #include <tonc.h>
 
 #include "stepmania_advance.h"
+#include "song.h"
 #include "setup.h"
 #include "row_list.h"
+#include "music.h"
 #include "buffers.h"
 #include "arrows.h"
 
@@ -20,8 +22,9 @@ int main()
     irq_add(II_VBLANK, NULL);
     // allocate mem for objs, copy sprite & bg data to VRAM
     setup_graphics();
+    setup_audio();
 
-	tte_init_se(0, BG_CBB(0) | BG_SBB(31), 0, CLR_ORANGE, 0, NULL, NULL);
+	tte_init_se(0, BG_CBB(0) | BG_SBB(31), 0, CLR_CREAM, 0, NULL, NULL);
 	tte_init_con();
 
     for (i = 0; i < NUM_ARROWS; i++) {
@@ -41,15 +44,27 @@ int main()
 
     int frame = 0;
     int score = 0;
+    int song_idx = 0;
+    tte_printf("#{es;P}Score: %d", score);
 
     while (1) {
         VBlankIntrWait();
 
         bool row_is_hit = check_key_presses(rows, keys);
-        if (row_is_hit) score++;
-        tte_printf("#{es;P}Score: %d", score);
+        if (row_is_hit) {
+            score++;
+            tte_printf("#{es;P}Score: %d", score);
+        }
 
-        if ((frame & 31) == 0) get_row(rows);
+        if (frame == FRAME_TEMPO && song_idx < SONG_LENGTH) {
+            get_row(rows);
+            REG_SNDDMGCNT &= 0xBBFF;
+            REG_SND3CNT = NOTE_DURATION | 1 << 13;
+            if (song[song_idx]) REG_SND3FREQ = SFREQ_BUILD(song[song_idx], 1, 1);
+            REG_SNDDMGCNT |= 0x4400;
+            frame = 0;
+            song_idx++;
+        }
 
         // TODO: use animation state machine for guide arrow shrinkage
         for (i = 0; i < NUM_ARROWS; i++) {
@@ -57,6 +72,7 @@ int main()
             if (key_released(keys[i]) || row_is_hit) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
         }
         arrow_flight(rows);
+
         // hopefully there are no ill effects associated with rewriting the entirety of
         //  OAM memory every frame : )
         oam_copy(oam_mem, obj_buffer, 128);
