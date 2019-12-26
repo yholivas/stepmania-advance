@@ -33,16 +33,19 @@ int main()
         guides[i].aff = &obj_aff_buf[i];
     }
 
-    //setup_sprites(arrows, 0, 0, x, y); // tile id, pal-bank
     setup_guides(guides);
 
     // key to arrow mask
-    int keys[NUM_ARROWS] = {KEY_R, KEY_A | KEY_B, KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT, KEY_L};
+    //int keys[NUM_ARROWS] = {KEY_R, KEY_A | KEY_B, KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT, KEY_L};
+    // for emulator usage:
+    int keys[NUM_ARROWS] = {KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_LEFT};
 
     // clear note row memory just in case
     for (i = 0; i < 32; i++) free_row(rows, i);
 
-    int frame = 0;
+    int row_frame = 0;
+    // TODO: make this a #define or something or make it dependent on some speed setting
+    int song_frame = -70;
     int score = 0;
     int song_idx = 0;
     tte_printf("#{es;P}Score: %d", score);
@@ -56,14 +59,19 @@ int main()
             tte_printf("#{es;P}Score: %d", score);
         }
 
-        if (frame == FRAME_TEMPO && song_idx < SONG_LENGTH) {
+        // fetch another row
+        if (row_frame == FRAME_TEMPO) {
             get_row(rows);
+            row_frame = 0;
+        }
+
+        if (song_frame == FRAME_TEMPO && song_idx < SONG_LENGTH) {
             REG_SNDDMGCNT &= 0xBBFF;
             REG_SND3CNT = NOTE_DURATION | 1 << 13;
             if (song[song_idx]) REG_SND3FREQ = SFREQ_BUILD(song[song_idx], 1, 1);
             REG_SNDDMGCNT |= 0x4400;
-            frame = 0;
             song_idx++;
+            song_frame = 0;
         }
 
         // TODO: use animation state machine for guide arrow shrinkage
@@ -77,7 +85,8 @@ int main()
         //  OAM memory every frame : )
         oam_copy(oam_mem, obj_buffer, 128);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);
-        frame++;
+        row_frame++;
+        song_frame++;
     }
 
     return 0;

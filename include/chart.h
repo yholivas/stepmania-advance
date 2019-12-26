@@ -3,6 +3,6 @@
 
 #define ROW_COUNT 60
 
-extern const unsigned int test_chart[36];
+extern const unsigned int test_chart[60];
 
 #endif //CHART_H
