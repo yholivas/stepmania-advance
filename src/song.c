@@ -14,7 +14,6 @@
 #define Db6 1930
 
 // F minor - A, B, D, E are flat
-// C5, Ab5, G5, F5, E5, F5
 const unsigned int song[] = 
 {
     C5, Ab5, G5, F5, E5, F5,

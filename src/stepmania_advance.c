@@ -53,9 +53,9 @@ int main()
     while (1) {
         VBlankIntrWait();
 
-        bool row_is_hit = check_key_presses(rows, keys);
-        if (row_is_hit) {
-            score++;
+        int score_inc = check_key_presses(rows, keys);
+        if (score_inc) {
+            score += score_inc;
             tte_printf("#{es;P}Score: %d", score);
         }
 
@@ -77,7 +77,7 @@ int main()
         // TODO: use animation state machine for guide arrow shrinkage
         for (i = 0; i < NUM_ARROWS; i++) {
             if (key_hit(keys[i])) obj_aff_scale(guides[i].aff, 0x0180, 0x0180);
-            if (key_released(keys[i]) || row_is_hit) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
+            if (key_released(keys[i]) || score_inc) obj_aff_scale(guides[i].aff, 0x0100, 0x0100);
         }
         arrow_flight(rows);
 

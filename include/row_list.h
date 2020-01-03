@@ -17,7 +17,7 @@ struct note_row {
 struct note_row * get_row(struct note_row * rows);
 
 // requires head to not be null
-bool check_key_presses(struct note_row * rows, int * keys);
+int check_key_presses(struct note_row * rows, int * keys);
 
 void arrow_flight(struct note_row * rows);
 
