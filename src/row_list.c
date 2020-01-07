@@ -17,10 +17,10 @@
 #define EX_SCORE  3
 #define FAN_SCORE 5
 
-static int base_idx = 0;
-static int next_row = 0;
-static int row_idx = 0;
-static int obj_idx = 0;
+static int base_idx;
+static int next_row;
+static int row_idx;
+static int obj_idx;
 
 // parameters:
 //  struct note_row rows[] - array of note row structs to look in
@@ -91,7 +91,8 @@ note_hit:
 
 // use 'notes' field of note_row struct to figure out what notes to change position
 // use 'y' field of note_row struct to determine position of all notes in row
-void arrow_flight(struct note_row * rows) {
+void arrow_flight(struct note_row * rows)
+{
     for (int i = 0; i < MAX_ROWS; i++) {
         int notes = rows[i].notes;
         if (notes == 0) continue;
@@ -109,7 +110,8 @@ void arrow_flight(struct note_row * rows) {
 }
 
 // row clearing function to serve as free/delete
-void free_row(struct note_row * rows, int idx) {
+void free_row(struct note_row * rows, int idx)
+{
     struct note_row * row = &rows[idx];
     row->notes = 0;
     row->y = 160;
@@ -119,4 +121,13 @@ void free_row(struct note_row * rows, int idx) {
         row->sprites[i] = NULL;
     }
     if (idx == base_idx) base_idx = (base_idx + 1) & (MAX_ROWS - 1);
+}
+
+void free_all(struct note_row * rows)
+{
+    base_idx = 0;
+    next_row = 0;
+    row_idx = 0;
+    obj_idx = 0;
+    for (int i = 0; i < 32; i++) free_row(rows, i);
 }

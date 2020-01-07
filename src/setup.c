@@ -4,7 +4,7 @@
 #include "arrows.h"
 #include "buffers.h"
 #include "setup.h"
-#include "stepmania_advance.h"
+#include "game_loop.h"
 
 #include "lrarrow.h"
 #include "udarrow.h"
@@ -31,7 +31,7 @@ void setup_graphics()
 
     // don't need until bg is more complicated than a single color
     //memcpy(&tile_mem[0][0], bgTiles, bgTilesLen);
-	//memcpy(&se_mem[30][0], bgMap, bgMapLen);
+    //memcpy(&se_mem[30][0], bgMap, bgMapLen);
 
     // store palettes into object & bg palette mem
     // each palette entry is 16 bits, get 16 palette entries per sprite
@@ -71,6 +71,10 @@ void setup_row(struct note_row * row)
 void setup_guides(struct guide_arrow * guides)
 {
     int i;
+    for (i = 0; i < NUM_ARROWS; i++) {
+        guides[i].obj = &obj_buffer[i];
+        guides[i].aff = &obj_aff_buf[i];
+    }
     for (i = 0; i < NUM_ARROWS; i++) {
         obj_set_attr(guides[i].obj, ATTR0_SQUARE | ATTR0_AFF, ATTR1_SIZE_16 | ATTR1_AFF_ID(i),
                 ATTR2_PALBANK(GDE_PB) | (GDE_TID + (4 * i)) | ATTR2_PRIO(3));

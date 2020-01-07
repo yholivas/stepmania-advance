@@ -1,7 +1,7 @@
 #ifndef SETUP_H
 #define SETUP_H
 
-#include "stepmania_advance.h"
+#include "game_loop.h"
 #include "row_list.h"
 
 #define NUM_ARROWS 4

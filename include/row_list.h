@@ -23,4 +23,6 @@ void arrow_flight(struct note_row * rows);
 
 void free_row(struct note_row * rows, int idx);
 
+void free_all(struct note_row * rows);
+
 #endif //ROW_LIST_H
