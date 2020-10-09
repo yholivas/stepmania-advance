@@ -2,8 +2,8 @@
 ### setup
 1. make sure you have libgba and libtonc installed from devkitpro
 ```
-sudo echo -e '[dkp-libs]\nServer = https://downloads.devkitpro.org/packages' >> /etc/pacman.conf
-sudo echo -e '[dkp-linux]\nServer = https://downloads.devkitpro.org/packages/linux' >> /etc/pacman.conf
+echo -e '[dkp-libs]\nServer = https://downloads.devkitpro.org/packages' | sudo tee -a /etc/pacman.conf > /dev/null
+echo -e '[dkp-linux]\nServer = https://downloads.devkitpro.org/packages/linux' | sudo tee -a /etc/pacman.conf > /dev/null
 sudo pacman -Sy; and sudo pacman -S libtonc libgba maxmod-gba gba-tools
 ```
 2. run `source devkit/devkit-env.sh` before building
