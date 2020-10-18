@@ -3,6 +3,7 @@
 
 #include "game_loop.h"
 #include "title.h"
+#include "reset.h"
 
 void draw_title()
 {
@@ -18,6 +19,9 @@ int main()
 {
     irq_init(NULL);
     irq_add(II_VBLANK, NULL);
+    irq_add(II_KEYPAD, key_reset);
+    REG_KEYCNT = 0b1100001100001100;
+    irq_enable(II_KEYPAD);
 
     draw_title();
 

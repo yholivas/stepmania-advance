@@ -137,6 +137,9 @@ $(OUTPUT).gba	:	$(OUTPUT).elf
 
 $(OUTPUT).elf	:	$(OFILES)
 
+reset.o:
+	/opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc -c src/reset.c -o build/reset.o -Iinclude -I/opt/devkitpro/libtonc/include -ltonc -Wall -O2 -mcpu=arm7tdmi -mtune=arm7tdmi -mthumb-interwork -marm
+
 $(OFILES_SOURCES) : $(HFILES)
 
 #---------------------------------------------------------------------------------
