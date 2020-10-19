@@ -23,6 +23,7 @@ int main()
     REG_KEYCNT = 0b1100001100001100;
     irq_enable(II_KEYPAD);
 
+    key_poll();
     draw_title();
 
     while(1) {
