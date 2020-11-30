@@ -6,14 +6,14 @@
 #include "setup.h"
 #include "game_loop.h"
 
-#include "lrarrow.h"
-#include "udarrow.h"
-#include "lguide.h"
-#include "dguide.h"
-#include "uguide.h"
-#include "rguide.h"
-#include "bg.h"
-#include "arrow_pals.h"
+#include "graphics/lrarrow.h"
+#include "graphics/udarrow.h"
+#include "graphics/lguide.h"
+#include "graphics/dguide.h"
+#include "graphics/uguide.h"
+#include "graphics/rguide.h"
+#include "graphics/bg.h"
+#include "graphics/arrow_pals.h"
 
 #define GDE_TID 8
 #define GDE_PB  1

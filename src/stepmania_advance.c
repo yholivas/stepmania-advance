@@ -2,7 +2,7 @@
 #include <tonc.h>
 
 #include "game_loop.h"
-#include "title.h"
+#include "graphics/title.h"
 #include "reset.h"
 
 void draw_title()
@@ -11,7 +11,7 @@ void draw_title()
     memcpy(&se_mem[30][0], titleMap, titleMapLen);
     memcpy(pal_bg_mem, titlePal, titlePalLen);
 
-    REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_8BPP | BG_REG_64x32;
+    REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32;
     REG_DISPCNT= DCNT_MODE0 | DCNT_BG0;
 }
 
