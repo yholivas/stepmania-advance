@@ -77,6 +77,7 @@ void gameplay()
         row_frame++;
         song_frame++;
     }
+    oam_init(oam_mem, 128);
 
     irq_disable(II_VBLANK);
     free_all(rows);
