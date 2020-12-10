@@ -8,6 +8,16 @@
 #include "graphics/title.h"
 #include "reset.h"
 
+#define NO_OPTS_X   104
+#define NO_OPTS_Y    93
+#define NO_OPTS_CB    1
+#define NO_OPTS_SE   29
+
+#define TITLE_CB      0
+#define TITLE_SE     30
+
+#define SEL_CB        4
+
 struct menu_selection {
     fnptr fn;
     int pos;
@@ -15,34 +25,29 @@ struct menu_selection {
 
 void draw_options()
 {
-    // bg1 position: 104, 93
-    // set priority or smth
-    REG_BG1HOFS = -104;
-    REG_BG1VOFS = -93;
+    REG_BG1HOFS = -NO_OPTS_X;
+    REG_BG1VOFS = -NO_OPTS_Y;
 }
 
 void setup_options()
 {
-    memcpy(&tile_mem[1][0], no_optionsTiles, no_optionsTilesLen);
-    memcpy(&se_mem[29][0], no_optionsMap, no_optionsMapLen);
-    memcpy(&pal_bg_mem[16], no_optionsPal, no_optionsPalLen);
-    //memcpy(pal_bg_mem, no_optionsPal, no_optionsPalLen);
-    REG_BG1HOFS = 104;
-    REG_BG1VOFS = 93;
+    memcpy(&tile_mem[NO_OPTS_CB][0], no_optionsTiles, no_optionsTilesLen);
+    memcpy(&se_mem[NO_OPTS_SE][0], no_optionsMap, no_optionsMapLen);
+    REG_BG1HOFS = NO_OPTS_X;
+    REG_BG1VOFS = NO_OPTS_Y;
 
-    REG_BG1CNT = BG_CBB(1) | BG_SBB(29) | BG_4BPP | BG_REG_32x32 | BG_PRIO(0);
-    REG_DISPCNT= DCNT_OBJ | DCNT_MODE0 | DCNT_BG1;
+    REG_BG1CNT = BG_CBB(NO_OPTS_CB) | BG_SBB(NO_OPTS_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(0);
 }
 
 void draw_title()
 {
-    memcpy(&tile_mem[0][0], titleTiles, titleTilesLen);
-    memcpy(&tile_mem[4][0], menu_arrowTiles, menu_arrowTilesLen);
-    memcpy(&se_mem[30][0], titleMap, titleMapLen);
-    memcpy(pal_bg_mem, titlePal, titlePalLen);
+    memcpy(&tile_mem[TITLE_CB][0], titleTiles, titleTilesLen);
+    memcpy(&tile_mem[SEL_CB][0], menu_arrowTiles, menu_arrowTilesLen);
+    memcpy(&se_mem[TITLE_SE][0], titleMap, titleMapLen);
+    memcpy(pal_bg_mem, SharedPal, SharedPalLen);
     pal_obj_mem[1] = menu_arrowPal[1];
 
-    REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32 | BG_PRIO(1);
+    REG_BG0CNT= BG_CBB(TITLE_CB) | BG_SBB(TITLE_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(1);
 
     setup_options();
     REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
