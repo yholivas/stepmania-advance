@@ -7,6 +7,9 @@
 #include "graphics/no-options.h"
 #include "graphics/title.h"
 #include "reset.h"
+#include "tonc_bios.h"
+#include "tonc_memdef.h"
+#include "tonc_memmap.h"
 
 #define NO_OPTS_X   104
 #define NO_OPTS_Y    93
@@ -49,8 +52,8 @@ void draw_title()
 
     REG_BG0CNT= BG_CBB(TITLE_CB) | BG_SBB(TITLE_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(1);
 
-    setup_options();
-    REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+    //setup_options();
+    //REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
 }
 
 void start_game()
@@ -69,6 +72,52 @@ void draw_splash()
     REG_DISPCNT=  DCNT_MODE0 | DCNT_BG0;
 }
 
+void draw_solid_screen(/*int bg_num, const unsigned short color*/)
+{
+	pal_bg_mem[16] = gnu_splash_screenPal[0];
+	REG_BG1CNT = BG_CBB(1) | BG_SBB(29);
+}
+
+void fade_ab(int ticks)
+{
+	REG_BLDCNT = BLD_BUILD(BLD_BG0, BLD_BG1 | BLD_BACKDROP, 1);
+	REG_BLDALPHA = BLDA_BUILD(16, 0);
+	for (int i = 0; i <= 16; ++i) {
+		int frames = ticks;
+		while (frames > 0) {
+			VBlankIntrWait();
+			frames--;
+		}
+		REG_BLDALPHA = BLDA_BUILD(16 - i, i);
+	}
+}
+
+void fade_ba(int ticks)
+{
+	REG_BLDCNT = BLD_BUILD(BLD_BG0 | BLD_BACKDROP, BLD_BG1 | BLD_BACKDROP, 1);
+	REG_BLDALPHA = BLDA_BUILD(0, 16);
+	for (int i = 0; i <= 16; ++i) {
+		int frames = ticks;
+		while (frames > 0) {
+			VBlankIntrWait();
+			frames--;
+		}
+		REG_BLDALPHA = BLDA_BUILD(i, 16 - i);
+	}
+}
+
+void fade_from_bw(int ticks)
+{
+	for (int i = 16; i >= 0; --i) {
+		int frames = ticks;
+		while (frames > 0) {
+			VBlankIntrWait();
+			frames--;
+		}
+		REG_BLDY = i;
+	}
+}
+
 /* draw selection arrow, default on START
  * menu_selection struct stores a menu arrow position and a function pointer
  * toggle between structs by pressing up or down and when start is hit jump to the fnptr in that struct
@@ -83,7 +132,14 @@ int main()
     irq_enable(II_KEYPAD);
     key_poll();
 
+    REG_BLDCNT = BLD_WHITE | BLD_BG0 | BLD_BACKDROP;
+    REG_BLDY = 0b10000;
     draw_splash();
+
+    fade_from_bw(2);
+
+    // right now it pauses for ~10 seconds to display the GNU splash screen
+    // use blending - blend from white background to gnu screen and then blend to title screen
     int i = 590;
     while (i > 0) {
         VBlankIntrWait();
@@ -92,9 +148,20 @@ int main()
         i--;
     }
 
+    draw_solid_screen();
 
+    fade_ab(2);
+
+    // this is a bit sus, probably should wait for vblank before clearing blend & switching bgs 
+    // draw only title screen, fade to it from bg0
     draw_title();
-    //setup_options();
+
+    fade_ba(2);
+
+    REG_BLDCNT = 0;
+    // then draw options
+    setup_options();
+    REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
 
     OBJ_ATTR menu_arrow;
     oam_init(oam_mem, 128);

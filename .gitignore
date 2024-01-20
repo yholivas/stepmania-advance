@@ -3,3 +3,6 @@ build/
 *.gba
 *.elf
 *.sav
+.cache
+compile_commands.json
+notes
