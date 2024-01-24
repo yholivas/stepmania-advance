@@ -105,7 +105,7 @@ export OFILES_SOURCES := $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 
 export OFILES := $(OFILES_BIN) $(OFILES_SOURCES)
 
-export HFILES := $(addsuffix .h,$(subst .,_,$(BINFILES)))
+#export HFILES := $(addsuffix .h,$(subst .,_,$(BINFILES)))
 
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-iquote $(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
@@ -137,10 +137,7 @@ $(OUTPUT).gba	:	$(OUTPUT).elf
 
 $(OUTPUT).elf	:	$(OFILES)
 
-reset.o:
-	/opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc -c src/reset.c -o build/reset.o -Iinclude -I/opt/devkitpro/libtonc/include -ltonc -Wall -O2 -mcpu=arm7tdmi -mtune=arm7tdmi -mthumb-interwork -marm
-
-$(OFILES_SOURCES) : $(HFILES)
+#$(OFILES_SOURCES) : $(HFILES)
 
 #---------------------------------------------------------------------------------
 # The bin2o rule should be copied and modified
@@ -157,10 +154,13 @@ soundbank.bin soundbank.h : $(AUDIOFILES)
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .bin extension
 #---------------------------------------------------------------------------------
-%.bin.o	%_bin.h :	%.bin
+%.raw.o :	%.raw
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
-	@$(bin2o)
+	arm-none-eabi-objcopy -I binary -O elf32-littlearm \
+		--rename-section .data=.rodata,alloc,load,readonly,data,contents\
+		--redefine-sym _binary_$(subst -,_,$(subst /,_,$(basename $<)))_raw_start=$(subst -,_,$(subst .,_,$(notdir $<)))\
+		$< $@
 
 
 -include $(DEPSDIR)/*.d

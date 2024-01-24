@@ -19,57 +19,51 @@
 #define TITLE_CB      0
 #define TITLE_SE     30
 
-#define SEL_CB        4
+#define SEL_CB	    4
 
 struct menu_selection {
-    fnptr fn;
-    int pos;
+	fnptr fn;
+	int pos;
 };
 
 void draw_options()
 {
-    REG_BG1HOFS = -NO_OPTS_X;
-    REG_BG1VOFS = -NO_OPTS_Y;
+	REG_BG1HOFS = -NO_OPTS_X;
+	REG_BG1VOFS = -NO_OPTS_Y;
 }
 
 void setup_options()
 {
-    memcpy(&tile_mem[NO_OPTS_CB][0], no_optionsTiles, no_optionsTilesLen);
-    memcpy(&se_mem[NO_OPTS_SE][0], no_optionsMap, no_optionsMapLen);
-    REG_BG1HOFS = NO_OPTS_X;
-    REG_BG1VOFS = NO_OPTS_Y;
+	memcpy(&tile_mem[NO_OPTS_CB][0], no_optionsTiles, no_optionsTilesLen);
+	memcpy(&se_mem[NO_OPTS_SE][0], no_optionsMap, no_optionsMapLen);
+	REG_BG1HOFS = NO_OPTS_X;
+	REG_BG1VOFS = NO_OPTS_Y;
 
-    REG_BG1CNT = BG_CBB(NO_OPTS_CB) | BG_SBB(NO_OPTS_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(0);
+	REG_BG1CNT = BG_CBB(NO_OPTS_CB) | BG_SBB(NO_OPTS_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(0);
 }
 
 void draw_title()
 {
-    memcpy(&tile_mem[TITLE_CB][0], titleTiles, titleTilesLen);
-    memcpy(&tile_mem[SEL_CB][0], menu_arrowTiles, menu_arrowTilesLen);
-    memcpy(&se_mem[TITLE_SE][0], titleMap, titleMapLen);
-    memcpy(pal_bg_mem, SharedPal, SharedPalLen);
-    pal_obj_mem[1] = menu_arrowPal[1];
+	memcpy(&tile_mem[TITLE_CB][0], titleTiles, titleTilesLen);
+	memcpy(&tile_mem[SEL_CB][0], menu_arrowTiles, menu_arrowTilesLen);
+	memcpy(&se_mem[TITLE_SE][0], titleMap, titleMapLen);
+	memcpy(pal_bg_mem, SharedPal, SharedPalLen);
+	pal_obj_mem[1] = menu_arrowPal[1];
 
-    REG_BG0CNT= BG_CBB(TITLE_CB) | BG_SBB(TITLE_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(1);
+	REG_BG0CNT= BG_CBB(TITLE_CB) | BG_SBB(TITLE_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(1);
 
-    //setup_options();
-    //REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
-}
-
-void start_game()
-{
-    gameplay();
-    draw_title();
+	//setup_options();
+	//REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
 }
 
 void draw_splash()
 {
-    memcpy(&tile_mem[0][0], gnu_splash_screenTiles, gnu_splash_screenTilesLen);
-    memcpy(&se_mem[30][0], gnu_splash_screenMap, gnu_splash_screenMapLen);
-    memcpy(pal_bg_mem, gnu_splash_screenPal, gnu_splash_screenPalLen);
+	memcpy(&tile_mem[0][0], gnu_splash_screenTiles, gnu_splash_screenTilesLen);
+	memcpy(&se_mem[30][0], gnu_splash_screenMap, gnu_splash_screenMapLen);
+	memcpy(pal_bg_mem, gnu_splash_screenPal, gnu_splash_screenPalLen);
 
-    REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32;
-    REG_DISPCNT=  DCNT_MODE0 | DCNT_BG0;
+	REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32;
+	REG_DISPCNT=  DCNT_MODE0 | DCNT_BG0;
 }
 
 void draw_solid_screen(/*int bg_num, const unsigned short color*/)
@@ -118,6 +112,32 @@ void fade_from_bw(int ticks)
 	}
 }
 
+void fade_to_bw(int ticks)
+{
+	for (int i = 1; i <= 16; ++i) {
+		int frames = ticks;
+		while (frames > 0) {
+			VBlankIntrWait();
+			frames--;
+		}
+		REG_BLDY = i;
+	}
+}
+
+void start_game()
+{
+	// TODO: fade to black then fade from black to gameplay - probably 1 tick fade
+	REG_BLDY = 0;
+	REG_BLDCNT = BLD_BLACK | BLD_BG0 | BLD_BACKDROP | BLD_OBJ;
+	fade_to_bw(1);
+	REG_BLDCNT = 0;
+	irq_disable(II_VBLANK);
+	gameplay();
+	REG_DISPCNT = DCNT_BLANK;
+	draw_title();
+	setup_options();
+	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+}
 /* draw selection arrow, default on START
  * menu_selection struct stores a menu arrow position and a function pointer
  * toggle between structs by pressing up or down and when start is hit jump to the fnptr in that struct
@@ -125,67 +145,73 @@ void fade_from_bw(int ticks)
  */
 int main()
 {
-    irq_init(NULL);
-    irq_add(II_VBLANK, NULL);
-    irq_add(II_KEYPAD, key_reset);
-    REG_KEYCNT = 0b1100001100001100;
-    irq_enable(II_KEYPAD);
-    key_poll();
+	irq_init(NULL);
+	irq_add(II_VBLANK, NULL);
+	irq_add(II_KEYPAD, key_reset);
+	REG_KEYCNT = 0b1100001100001100;
+	irq_enable(II_KEYPAD);
+	key_poll();
+	// maybe set bit 7 (DCNT_BLANK) in REG_DISPCNT to display all white
+	REG_DISPCNT = DCNT_BLANK;
 
-    REG_BLDCNT = BLD_WHITE | BLD_BG0 | BLD_BACKDROP;
-    REG_BLDY = 0b10000;
-    draw_splash();
+	REG_BLDY = 0b10000;
+	REG_BLDCNT = BLD_WHITE | BLD_BG0 | BLD_BACKDROP;
+	draw_splash();
 
-    fade_from_bw(2);
+	fade_from_bw(2);
 
-    // right now it pauses for ~10 seconds to display the GNU splash screen
-    // use blending - blend from white background to gnu screen and then blend to title screen
-    int i = 590;
-    while (i > 0) {
-        VBlankIntrWait();
-        key_poll();
-        i -= (key_hit(KEY_START | KEY_A) << 12) ;
-        i--;
-    }
+	// right now it pauses for ~10 seconds to display the GNU splash screen
+	// use blending - blend from white background to gnu screen and then blend to title screen
+	int i = 590;
+	while (i > 0) {
+		VBlankIntrWait();
+		key_poll();
+		i -= (key_hit(KEY_START | KEY_A) << 12) ;
+		i--;
+	}
 
-    draw_solid_screen();
+	draw_solid_screen();
 
-    fade_ab(2);
+	fade_ab(2);
 
-    // this is a bit sus, probably should wait for vblank before clearing blend & switching bgs 
-    // draw only title screen, fade to it from bg0
-    draw_title();
+	// this is a bit sus, probably should wait for vblank before clearing blend & switching bgs 
+	// draw only title screen, fade to it from bg0
+	draw_title();
 
-    fade_ba(2);
+	fade_ba(2);
 
-    REG_BLDCNT = 0;
-    // then draw options
-    setup_options();
-    REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+	REG_BLDCNT = 0;
+	// then draw options
+	setup_options();
+	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
 
-    OBJ_ATTR menu_arrow;
-    oam_init(oam_mem, 128);
-    obj_set_attr(&menu_arrow, ATTR0_SQUARE, ATTR1_SIZE_16, 0);
+	OBJ_ATTR menu_arrow;
+	oam_init(oam_mem, 128);
+	obj_set_attr(&menu_arrow, ATTR0_SQUARE | ATTR0_BLEND, ATTR1_SIZE_16, 0);
 
-    struct menu_selection start = { .fn = start_game, .pos = 109 }; 
-    struct menu_selection opts = { .fn = draw_options, .pos = 131 };
-    struct menu_selection * curr_selection = &start;
+	struct menu_selection start = { .fn = start_game, .pos = 109 }; 
+	struct menu_selection opts = { .fn = draw_options, .pos = 131 };
+	struct menu_selection * curr_selection = &start;
 
-    // TODO: make "no options" background as BG1, toggle when it appears or not in options fn
-    // have to figure out how to make it disappear when up/down are pressed
-    while(1) {
-        VBlankIntrWait();
-        key_poll();
-        if (key_hit(KEY_START)) {
-            irq_disable(II_VBLANK);
-            (curr_selection->fn)();
-            // todo: move the draw_title call to a separate function for starting the game
-            irq_enable(II_VBLANK);
-        } else if (key_hit(KEY_UP | KEY_DOWN)) {
-            if (curr_selection == &start) curr_selection = &opts;
-            else curr_selection = &start;
-        }
-        obj_set_pos(&menu_arrow, 7, curr_selection->pos);
-        oam_copy(oam_mem, &menu_arrow, 1);
-    }
+	// TODO: replace title screen background with a diagonally-scrolling arrow field ala simply love
+
+	// make "no options" background as BG1, toggle when it appears or not in options fn
+	// have to figure out how to make it disappear when up/down are pressed
+	//
+	// also add sounds for when user selects an option
+	// causes arrow selector to go to right a bit and then back
+	while(1) {
+		VBlankIntrWait();
+		key_poll();
+		if (key_hit(KEY_START)) {
+			(curr_selection->fn)();
+			// todo: move the draw_title call to a separate function for starting the game
+			irq_enable(II_VBLANK);
+		} else if (key_hit(KEY_UP | KEY_DOWN)) {
+			if (curr_selection == &start) curr_selection = &opts;
+			else curr_selection = &start;
+		}
+		obj_set_pos(&menu_arrow, 7, curr_selection->pos);
+		oam_copy(oam_mem, &menu_arrow, 1);
+	}
 }

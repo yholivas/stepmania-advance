@@ -8,6 +8,9 @@
 #include "buffers.h"
 #include "arrows.h"
 
+#define FRAME_TEMPO 16
+#define SONG_LENGTH 50
+
 void gameplay()
 {
     int i;
@@ -17,7 +20,6 @@ void gameplay()
 
     // allocate mem for objs, copy sprite & bg data to VRAM
     setup_graphics();
-    setup_audio();
     setup_guides(guides);
 
     tte_init_se(0, BG_CBB(0) | BG_SBB(31), 0, CLR_CREAM, 0, NULL, NULL);
@@ -33,11 +35,12 @@ void gameplay()
     irq_enable(II_VBLANK);
 
     int row_frame = 0;
+    int song_frame = 0;
     // TODO: make this a #define or something or make it dependent on some speed setting
-    int song_frame = -70;
     int score = 0;
     int song_idx = 0;
     tte_printf("#{es;P}Score: %d", score);
+    play_music();
 
     while (song_idx < SONG_LENGTH) {
         VBlankIntrWait();
@@ -54,14 +57,10 @@ void gameplay()
             row_frame = 0;
         }
 
-        if (song_frame == FRAME_TEMPO && song_idx < SONG_LENGTH) {
-            REG_SNDDMGCNT &= 0xBBFF;
-            REG_SND3CNT = NOTE_DURATION | 1 << 13;
-            if (song[song_idx]) REG_SND3FREQ = SFREQ_BUILD(song[song_idx], 1, 1);
-            REG_SNDDMGCNT |= 0x4400;
-            song_idx++;
-            song_frame = 0;
-        }
+	if (song_frame == FRAME_TEMPO) {
+		song_idx++;
+		song_frame = 0;
+	}
 
         // TODO: use animation state machine for guide arrow shrinkage
         for (i = 0; i < NUM_ARROWS; i++) {
@@ -75,8 +74,9 @@ void gameplay()
         oam_copy(oam_mem, obj_buffer, 128);
         obj_aff_copy(obj_aff_mem, obj_aff_buf, 4);
         row_frame++;
-        song_frame++;
+	song_frame++;
     }
+    stop_music();
     oam_init(oam_mem, 128);
 
     irq_disable(II_VBLANK);
