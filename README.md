@@ -1,5 +1,5 @@
 # Stepmania Advance
-![Title screen](scrot.png)
+![Title screen](title.webp)
 ### setup
 1. make sure you have libgba and libtonc installed from devkitpro
 ```
