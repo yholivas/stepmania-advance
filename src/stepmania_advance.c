@@ -2,9 +2,11 @@
 #include <tonc.h>
 
 #include "game_loop.h"
+#include "graphics/bg-arrows.h"
 #include "graphics/gnu-splash-screen.h"
 #include "graphics/menu-arrow.h"
 #include "graphics/no-options.h"
+#include "graphics/fg-arrows.h"
 #include "graphics/title.h"
 #include "reset.h"
 #include "tonc_bios.h"
@@ -44,13 +46,24 @@ void setup_options()
 
 void draw_title()
 {
-	memcpy(&tile_mem[TITLE_CB][0], titleTiles, titleTilesLen);
-	memcpy(&tile_mem[SEL_CB][0], menu_arrowTiles, menu_arrowTilesLen);
-	memcpy(&se_mem[TITLE_SE][0], titleMap, titleMapLen);
-	memcpy(pal_bg_mem, SharedPal, SharedPalLen);
-	pal_obj_mem[1] = menu_arrowPal[1];
+	memcpy(&tile_mem[1][0], titleTiles, titleTilesLen);
+	memcpy(&se_mem[29][0], titleMap, titleMapLen);
 
-	REG_BG0CNT= BG_CBB(TITLE_CB) | BG_SBB(TITLE_SE) | BG_8BPP | BG_REG_32x32 | BG_PRIO(1);
+	memcpy(&tile_mem[2][0], bg_arrowsTiles, bg_arrowsTilesLen);
+	memcpy(&se_mem[28][0], bg_arrowsMap, bg_arrowsMapLen);
+
+	memcpy(&tile_mem[TITLE_CB][0], fg_arrowsTiles, fg_arrowsTilesLen);
+	memcpy(&se_mem[TITLE_SE][0], fg_arrowsMap, fg_arrowsMapLen);
+	//*(int *)0x05000000 = 0x4bff7c11;
+	memcpy(pal_bg_mem, SharedPal, SharedPalLen);
+
+	memcpy(&tile_mem[SEL_CB][0], menu_arrowTiles, menu_arrowTilesLen);
+	pal_obj_mem[1] = menu_arrowPal[1];
+	pal_obj_mem[2] = menu_arrowPal[2];
+
+	REG_BG0CNT= BG_CBB(TITLE_CB) | BG_SBB(TITLE_SE) | BG_4BPP | BG_REG_32x32 | BG_PRIO(1);
+	REG_BG1CNT = BG_CBB(1) | BG_SBB(29) | BG_4BPP | BG_REG_32x32 | BG_PRIO(0);
+	REG_BG2CNT = BG_CBB(2) | BG_SBB(28) | BG_4BPP | BG_REG_32x32 | BG_PRIO(2);
 
 	//setup_options();
 	//REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
@@ -127,6 +140,7 @@ void fade_to_bw(int ticks)
 void start_game()
 {
 	// TODO: fade to black then fade from black to gameplay - probably 1 tick fade
+	REG_DISPCNT = DCNT_MODE0 | DCNT_BG0;
 	REG_BLDY = 0;
 	REG_BLDCNT = BLD_BLACK | BLD_BG0 | BLD_BACKDROP | BLD_OBJ;
 	fade_to_bw(1);
@@ -135,8 +149,8 @@ void start_game()
 	gameplay();
 	REG_DISPCNT = DCNT_BLANK;
 	draw_title();
-	setup_options();
-	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+	//setup_options();
+	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2;
 }
 /* draw selection arrow, default on START
  * menu_selection struct stores a menu arrow position and a function pointer
@@ -148,10 +162,9 @@ int main()
 	irq_init(NULL);
 	irq_add(II_VBLANK, NULL);
 	irq_add(II_KEYPAD, key_reset);
-	REG_KEYCNT = 0b1100001100001100;
+	REG_KEYCNT = 0b1100001100001100; // L+R+St+Sel
 	irq_enable(II_KEYPAD);
 	key_poll();
-	// maybe set bit 7 (DCNT_BLANK) in REG_DISPCNT to display all white
 	REG_DISPCNT = DCNT_BLANK;
 
 	REG_BLDY = 0b10000;
@@ -182,8 +195,8 @@ int main()
 
 	REG_BLDCNT = 0;
 	// then draw options
-	setup_options();
-	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+	//setup_options();
+	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2;
 
 	OBJ_ATTR menu_arrow;
 	oam_init(oam_mem, 128);
@@ -200,6 +213,10 @@ int main()
 	//
 	// also add sounds for when user selects an option
 	// causes arrow selector to go to right a bit and then back
+	int x = 0;
+	int y = 0;
+	int x2 = 0;
+	int y2 = 0;
 	while(1) {
 		VBlankIntrWait();
 		key_poll();
@@ -211,6 +228,16 @@ int main()
 			if (curr_selection == &start) curr_selection = &opts;
 			else curr_selection = &start;
 		}
+		x2 += 2;
+		y2 += 1;
+		REG_BG2HOFS = x2 >> 2;
+		REG_BG2VOFS = y2 >> 2;
+		REG_BG0HOFS = ++x >> 1;
+		REG_BG0VOFS = ++y >> 1;
+		if (x > 1023) x = 0;
+		if (y > 1023) y = 0;
+		if (x2 > 1023) x2 = 0;
+		if (y2 > 1023) y2 = 0;
 		obj_set_pos(&menu_arrow, 7, curr_selection->pos);
 		oam_copy(oam_mem, &menu_arrow, 1);
 	}
