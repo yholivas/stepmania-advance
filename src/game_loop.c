@@ -1,7 +1,11 @@
-#include <tonc.h>
+#include <tonc_video.h>
+#include <tonc_irq.h>
+#include <tonc_bios.h>
+#include <tonc_input.h>
+#include <tonc_oam.h>
 
 #include "game_loop.h"
-#include "song.h"
+#include "graphics.h"
 #include "setup.h"
 #include "row_list.h"
 #include "music.h"
@@ -22,9 +26,6 @@ void gameplay()
     setup_graphics();
     setup_guides(guides);
 
-    tte_init_se(0, BG_CBB(0) | BG_SBB(31), 0, CLR_CREAM, 0, NULL, NULL);
-    tte_init_con();
-
     // key to arrow mask
     //int keys[NUM_ARROWS] = {KEY_R, KEY_A | KEY_B, KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT, KEY_L};
     // for emulator usage:
@@ -32,14 +33,15 @@ void gameplay()
 
     free_all(rows);
 
-    irq_enable(II_VBLANK);
+    //irq_enable(II_VBLANK);
+
+    fade_from_bw(black, 1);
 
     int row_frame = 0;
     int song_frame = 0;
     // TODO: make this a #define or something or make it dependent on some speed setting
     int score = 0;
     int song_idx = 0;
-    tte_printf("#{es;P}Score: %d", score);
     play_music();
 
     while (song_idx < SONG_LENGTH) {
@@ -48,7 +50,6 @@ void gameplay()
         int score_inc = check_key_presses(rows, keys);
         if (score_inc) {
             score += score_inc;
-            tte_printf("#{es;P}Score: %d", score);
         }
 
         // fetch another row
@@ -77,8 +78,9 @@ void gameplay()
 	song_frame++;
     }
     stop_music();
+    fade_to_bw(black, 1);
     oam_init(oam_mem, 128);
 
-    irq_disable(II_VBLANK);
+    //irq_disable(II_VBLANK);
     free_all(rows);
 }
