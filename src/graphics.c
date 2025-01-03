@@ -8,7 +8,7 @@ void setup_bg(struct bg_scene bg, int num)
 	memcpy32(&tile_mem[bg.cb][0], bg.tiles, bg.tiles_len);
 	memcpy16(&se_mem[bg.se][0], bg.map, bg.map_len);
 
-	*(vu16 *)(REG_BGCNT + 2 * num) = BG_CBB(bg.cb) | BG_SBB(bg.se) | bg.ctrl_reg;
+	REG_BGCNT[bg.cb] = BG_CBB(bg.cb) | BG_SBB(bg.se) | bg.ctrl_reg;
 }
 
 void write_palette(struct palette *pal)

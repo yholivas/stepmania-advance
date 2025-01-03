@@ -46,37 +46,21 @@ void setup_options()
 
 void draw_title()
 {
-	memcpy(pal_bg_mem, SharedPal, SharedPalLen);
-	memcpy(&tile_mem[1][0], titleTiles, titleTilesLen);
-	memcpy(&se_mem[29][0], titleMap, titleMapLen);
-
 	memcpy(&tile_mem[2][0], bg_arrowsTiles, bg_arrowsTilesLen);
 	memcpy(&se_mem[28][0], bg_arrowsMap, bg_arrowsMapLen);
 
 	memcpy(&tile_mem[TITLE_CB][0], fg_arrowsTiles, fg_arrowsTilesLen);
 	memcpy(&se_mem[TITLE_SE][0], fg_arrowsMap, fg_arrowsMapLen);
-	//*(int *)0x05000000 = 0x4bff7c11;
 
 	memcpy(&tile_mem[SEL_CB][0], menu_arrowTiles, menu_arrowTilesLen);
 	pal_obj_mem[1] = menu_arrowPal[1];
 	pal_obj_mem[2] = menu_arrowPal[2];
 
 	REG_BG0CNT= BG_CBB(TITLE_CB) | BG_SBB(TITLE_SE) | BG_4BPP | BG_REG_32x32 | BG_PRIO(1);
-	REG_BG1CNT = BG_CBB(1) | BG_SBB(29) | BG_4BPP | BG_REG_32x32 | BG_PRIO(0);
 	REG_BG2CNT = BG_CBB(2) | BG_SBB(28) | BG_4BPP | BG_REG_32x32 | BG_PRIO(2);
 
 	//setup_options();
 	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D | DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_BG2;
-}
-
-void draw_splash()
-{
-	memcpy(&tile_mem[0][0], gnu_splash_screenTiles, gnu_splash_screenTilesLen);
-	memcpy(&se_mem[30][0], gnu_splash_screenMap, gnu_splash_screenMapLen);
-	memcpy(pal_bg_mem, gnu_splash_screenPal, gnu_splash_screenPalLen);
-
-	REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_32x32;
-	REG_DISPCNT=  DCNT_MODE0 | DCNT_BG0;
 }
 
 void blank_bg(int bg)
@@ -99,6 +83,21 @@ void start_game()
  * toggle between structs by pressing up or down and when start is hit jump to the fnptr in that struct
  * TODO: make a more complicated list or array to iterate over when up/down are pressed
  */
+
+struct bg_scene title_bg = {
+	.tiles = titleTiles,
+	.tiles_len = titleTilesLen,
+	.map = titleMap,
+	.map_len = titleMapLen,
+	.cb = 1,
+	.se = 29,
+	.ctrl_reg = BG_4BPP | BG_REG_32x32 | BG_PRIO(0)
+};
+
+struct palette title_pal = {
+	.val = SharedPal,
+	.len = SharedPalLen
+};
 
 struct bg_scene splash_bg = {
 	.tiles = gnu_splash_screenTiles,
@@ -156,12 +155,14 @@ int main()
 	oam_init(oam_mem, 128);
 	obj_set_attr(&menu_arrow, ATTR0_SQUARE | ATTR0_BLEND, ATTR1_SIZE_16, 0);
 	// draw only title screen, fade to it from bg0
-	draw_title();
+	setup_bg(title_bg, 1); // num is cb
+	write_palette(&title_pal);
 
 	fade_ba(BLD_BG0, 2);
 
 	REG_BLDCNT = 0;
 
+	draw_title();
 	struct menu_selection start = { .fn = start_game, .pos = 109 }; 
 	// TODO: make options its own little loop, still increments bg2ofs though
 	struct menu_selection opts = { .fn = setup_options, .pos = 131 };
