@@ -23,7 +23,7 @@ struct scene {
 	struct palette *pal;
 };
 
-void setup_bg(struct bg_scene bg, int num);
+void setup_bg(struct bg_scene bg);
 void write_palette(struct palette *pal);
 void draw_scene(struct scene scene);
 

@@ -3,17 +3,17 @@
 #include <tonc_video.h>
 #include "graphics.h"
 
-void setup_bg(struct bg_scene bg, int num)
+void setup_bg(struct bg_scene bg)
 {
-	memcpy32(&tile_mem[bg.cb][0], bg.tiles, bg.tiles_len);
-	memcpy16(&se_mem[bg.se][0], bg.map, bg.map_len);
+	memcpy32(&tile_mem[bg.cb][0], bg.tiles, bg.tiles_len >> 2);
+	memcpy16(&se_mem[bg.se][0], bg.map, bg.map_len >> 1);
 
 	REG_BGCNT[bg.cb] = BG_CBB(bg.cb) | BG_SBB(bg.se) | bg.ctrl_reg;
 }
 
 void write_palette(struct palette *pal)
 {
-	memcpy16(pal_bg_mem, pal->val, pal->len);
+	memcpy16(pal_bg_mem, pal->val, pal->len >> 1);
 }
 
 void draw_scene(struct scene scene)
@@ -23,7 +23,7 @@ void draw_scene(struct scene scene)
 	for (int i = 0; i < scene.num_bgs; ++i)
 	{
 		int num = scene.bgs[i].cb;
-		setup_bg(scene.bgs[i], num);
+		setup_bg(scene.bgs[i]);
 		dispcnt |= 1 << (num + 8);
 	}
 	REG_DISPCNT = dispcnt;

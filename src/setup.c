@@ -31,7 +31,7 @@ void setup_graphics()
 
     // don't need until bg is more complicated than a single color
     //memcpy(&tile_mem[0][0], bgTiles, bgTilesLen);
-    //memcpy(&se_mem[30][0], bgMap, bgMapLen);
+    memset32(&se_mem[30][0], 0, 512);
 
     // store palettes into object & bg palette mem
     // each palette entry is 16 bits, get 16 palette entries per sprite
